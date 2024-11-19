@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Website Name</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Theme Colors */
+        :root {
+            --bg-color: #121212;
+            --card-bg-color: #1e1e1e;
+            --primary-color: #03DAC6;
+            --secondary-color: #333333;
+            --text-color: #E0E0E0;
+            --hover-color: #555555;
+            --border-hover-color: #777777;
+            --accent-color: #03DAC6;
+        }
+
+        /* Main Container */
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 3em;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+
+        /* iFrame Player */
+        .iframe-container {
+            width: 100%;
+            height: 360px;
+            margin-bottom: 30px;
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Match Cards */
+        .match-card {
+            background-color: var(--card-bg-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        /* Live Indicator */
+        .live-indicator {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #ff0f0f, #ff4747);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .match-card:hover {
+            border: 2px solid var(--border-hover-color);
+        }
+
+        .match-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .teams-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .team {
+            text-align: center;
+            color: var(--text-color);
+            margin: 0 20px;
+        }
+
+        .team img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid var(--accent-color);
+        }
+
+        .vs-text {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .timer, .played-time {
+            background: linear-gradient(90deg, rgba(0, 218, 198, 0.8), rgba(0, 218, 198, 0.2));
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 5px 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Popup Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background-color: var(--card-bg-color);
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .modal a {
+            display: block;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 10px 0;
+            margin: 8px 0;
+            font-size: 1.1em;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .modal a:hover {
+            background-color: var(--hover-color);
+        }
+
+        .modal .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal .close-btn:hover {
+            background-color: #029688;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <a href="/" class="logo">Your Website Name</a>
+
+        <!-- iFrame Container -->
+        <div class="iframe-container">
+            <iframe id="matchPlayer" src="about:blank"></iframe>
+        </div>
+
+        <!-- Match Cards -->
+        <div class="match-card" id="match1" onclick="showModal('Bangladesh vs Afghanistan', [
+            { url: 'https://cinebuzz.netfy.live/crichd/play.php?cricid=willowextra', label: 'Stream Link 1' },
+            { url: 'https://cinebuzz.netfy.live/crichd/play.php?cricid=willowextra', label: 'Stream Link 2' },
+            { url: 'https://cinebuzz.netfy.live/crichd/play.php?cricid=willowextra', label: 'Stream Link 3' }
+        ])">
+            <div class="live-indicator" id="liveIndicator1">Live</div>
+            <div class="teams-container">
+                <div class="team">
+                    <img src="https://via.placeholder.com/70x70?text=BD" alt="Bangladesh Logo">
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team">
+                    <img src="https://via.placeholder.com/70x70?text=AFG" alt="Afghanistan Logo">
+                </div>
+            </div>
+            <div class="timer" id="timer1"></div>
+            <div class="played-time" id="playedTime1">Played: 00:00:00</div>
+        </div>
+
+        <div class="match-card" id="match2" onclick="showModal('India vs South Africa', [
+            { url: 'https://cinebuzz.netfy.live/crichd/play.php?cricid=willowusa', label: 'Stream Link 1' },
+            { url: 'https://cinebuzz.netfy.live/crichd/play.php?cricid=willowusa', label: 'Stream Link 2' }
+        ])">
+            <div class="live-indicator" id="liveIndicator2">Live</div>
+            <div class="teams-container">
+                <div class="team">
+                    <img src="https://via.placeholder.com/70x70?text=IND" alt="India Logo">
+                </div>
+                <div class="vs-text">VS</div>
+                <div class="team">
+                    <img src="https://via.placeholder.com/70x70?text=SA" alt="South Africa Logo">
+                </div>
+            </div>
+            <div class="timer" id="timer2"></div>
+            <div class="played-time" id="playedTime2">Played: 00:00:00</div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal" id="modal">
+            <h2 id="modalTitle">Match Links</h2>
+            <div id="modalLinks"></div>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Match timings configuration (change to actual match times)
+        const matches = [
+            {
+                id: 'match1',
+                startTime: new Date('2024-11-17T13:00:00'), // Match start time
+                endTime: new Date('2024-11-18T17:00:00'), // Match end time
+                indicatorId: 'liveIndicator1',
+                timerId: 'timer1',
+                playedTimeId: 'playedTime1'
+            },
+            {
+                id: 'match2',
+                startTime: new Date('2024-11-17T18:00:00'), // Match start time
+                endTime: new Date('2024-11-17T20:00:00'), // Match end time
+                indicatorId: 'liveIndicator2',
+                timerId: 'timer2',
+                playedTimeId: 'playedTime2'
+            }
+        ];
+
+        function formatTime(seconds) {
+            const hours = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            return `${hours}:${minutes}:${secs}`;
+        }
+
+        function updateMatchTimers() {
+            const now = new Date();
+            matches.forEach(match => {
+                const { startTime, endTime, indicatorId, timerId, playedTimeId } = match;
+                const indicator = document.getElementById(indicatorId);
+                const timerElement = document.getElementById(timerId);
+                const playedTimeElement = document.getElementById(playedTimeId);
+                const timeElapsed = Math.floor((now - startTime) / 1000);
+
+                if (now >= startTime && now <= endTime) {
+                    indicator.style.display = 'block';
+                    timerElement.style.display = 'none';
+                    playedTimeElement.style.display = 'block';
+                    playedTimeElement.textContent = `Played: ${formatTime(timeElapsed)}`;
+                } else if (now < startTime) {
+                    indicator.style.display = 'none';
+                    timerElement.style.display = 'block';
+                    const minutesRemaining = Math.ceil((startTime - now) / (1000 * 60));
+                    timerElement.textContent = `Starting in ${minutesRemaining} min`;
+                    playedTimeElement.style.display = 'none';
+                } else {
+                    indicator.style.display = 'none';
+                    timerElement.style.display = 'none';
+                    playedTimeElement.style.display = 'none';
+                }
+            });
+        }
+
+        setInterval(updateMatchTimers, 1000);
+        updateMatchTimers();
+
+        function loadMatch(url) {
+            document.getElementById('matchPlayer').src = url;
+            closeModal();
+        }
+
+        function showModal(title, links) {
+            document.getElementById('modalTitle').textContent = title;
+            const linksContainer = document.getElementById('modalLinks');
+            linksContainer.innerHTML = '';
+
+            links.forEach(link => {
+                const a = document.createElement('a');
+                a.textContent = link.label;
+                a.href = '#';
+                a.onclick = () => loadMatch(link.url);
+                linksContainer.appendChild(a);
+            });
+
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
